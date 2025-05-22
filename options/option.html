@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CookieMaster Lite Options</title>
+    <link href="option.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="options-container">
+        <div class="options-header">
+            <h1>
+                <svg class="header-icon" viewBox="0 0 20 20">
+                    <path
+                        d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                    </path>
+                </svg>
+                CookieMaster Lite Settings
+            </h1>
+        </div>
+
+        <div class="options-content">
+            <div class="settings-section">
+                <h2>General Settings</h2>
+
+                <div class="settings-group">
+                    <label class="setting">
+                        <input type="checkbox" id="autoRefresh">
+                        <span>Auto-refresh cookie list every 30 seconds</span>
+                    </label>
+
+                    <label class="setting">
+                        <input type="checkbox" id="confirmDeletion" checked>
+                        <span>Show confirmation before deleting cookies</span>
+                    </label>
+
+                    <label class="setting">
+                        <input type="checkbox" id="darkMode">
+                        <span>Enable dark mode</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h2>Default Cache Cleaner Settings</h2>
+
+                <div class="form-group">
+                    <label>Default time range</label>
+                    <select id="defaultTimeRange" class="form-control">
+                        <option value="1">Last hour</option>
+                        <option value="24">Last 24 hours</option>
+                        <option value="168">Last week</option>
+                        <option value="0" selected>All time</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-footer">
+                <button id="saveSettings" class="save-btn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="option.js"></script>
+</body>
+
+</html>
