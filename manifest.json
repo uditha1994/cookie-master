@@ -1,0 +1,23 @@
+{
+    "manifest_version":3,
+    "name": "CookiMaster Lite",
+    "version":"1.0.0",
+    "description": "A lightweight cookie editor and cache cleaner",
+    "permission": [
+        "cookies",
+        "browsingData",
+        "storage",
+        "activeTab"
+    ],
+    "host_permission": ["<all_urls>"],
+    "background":{
+        "service_worker": "backround.js"
+    },
+    "actions": {
+        "default_popup": "popup/popup.html"
+    },
+    "icons":{
+
+    },
+    "options_page": "options/option.html"
+}

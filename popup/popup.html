@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CookieMaster Lite</title>
+    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="animation.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">
+                <svg class="icon" viewBox="0 0 20 20">
+                    <path
+                        d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                    </path>
+                </svg>
+                CookieMaster
+            </h1>
+            <button id="refreshBtn" class="refresh-btn">
+                <svg id="refreshIcon" class="refresh-icon" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                <svg id="loadingSpinner" class="loading-spinner" viewBox="0 0 24 24" style="display: none;">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25">
+                    </circle>
+                    <path
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        fill="currentColor" opacity="0.75"></path>
+                </svg>
+            </button>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button id="cookiesTabs" class="tab active">Cookies</button>
+            <button class="tab" id="cacheTab">Cache Cleaner</button>
+        </div>
+
+        <!-- cookies tab content -->
+        <div class="tab-content" id="cookiesContent">
+            <div class="search-container">
+                <svg class="search-icon" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                <input type="text" id="domainFilter" class="search-input" placeholder="Filter by Domain...">
+            </div>
+            <div class="cookies-list" id="cookiesList">
+                <!-- cookies will be inserted here -->
+            </div>
+        </div>
+
+        <!-- cache tab content -->
+        <div class="tab-content" id="cacheContent">
+            <div class="cache-options">
+                <h3>Clean Browser Data</h3>
+                <p>Select what you want to clean:</p>
+                <div class="option-group">
+                    <lable class="option-label">
+                        <input type="checkbox" id="cacheOptionCache" checked>
+                        Cached Image and files
+                    </lable>
+                    <lable class="option-label">
+                        <input type="checkbox" id="cacheOptionCookies" checked>
+                        Cookies
+                    </lable>
+                    <lable class="option-label">
+                        <input type="checkbox" id="cacheOptionLocalStorage" checked>
+                        Local Storage
+                    </lable>
+                    <lable class="option-label">
+                        <input type="checkbox" id="cacheOptionSessionStorage" checked>
+                        Session Storage
+                    </lable>
+                </div>
+
+                <div class="time-range">
+                    <label>Time Range</label>
+                    <select id="cacheTimeRange" class="time-select">
+                        <option value="1">Last Hour</option>
+                        <option value="24">Last 24 Hours</option>
+                        <option value="168">Last Week</option>
+                        <option value="0" selected>All Time</option>
+                    </select>
+                </div>
+
+                <button id="cleanCacheBtn" class="clean-btn">
+                    <svg class="clean-icon" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                        </path>
+                    </svg>
+                    Clean Selected Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Edit Cookies Modal -->
+        <div class="modal" id="editModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Edit Cookie</h3>
+                    <button id="closeModal" class="closeBtn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="editCookieName" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Value</label>
+                        <input type="text" id="editCookieValue" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Domain</label>
+                        <input type="text" id="editCookieDomain" class="form-input">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelEdit" class="btn secondary-btn">Cancel</button>
+                    <button id="saveCookie" class="btn primary-btn">Save</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
