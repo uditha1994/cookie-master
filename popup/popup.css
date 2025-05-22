@@ -51,7 +51,8 @@ body {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-.refresh-icon .loading-spinner {
+.refresh-icon,
+.loading-spinner {
     width: 20px;
     height: 20px;
     fill: white;
@@ -130,4 +131,81 @@ body {
     outline: none;
     border-color: #7c3aed;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.cookie-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.cookie-item {
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.cookie-item:hover {
+    border-color: #c7d2fe;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.cookie-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+}
+
+.cookie-name {
+    font-weight: 500;
+    color: #111827;
+    margin: 0;
+    font-size: 14px;
+}
+
+.cookie-domain {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.cookie-value {
+    font-family: 13px;
+    color: #4b5563;
+    word-break: break-all;
+    margin: 8px 0 0;
+}
+
+.cookie-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.cookie-item:hover .cookie-actions {
+    opacity: 1;
+}
+
+.action-btn {
+    background: none;
+    border: 24px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.action-btn:hover {
+    background-color: #f3f4f6;
 }
