@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
     //State
     let cookies = [];
     let currentEditingCookie = null;
+    let filteredCookies = [];
 
     //initilize app
     initTabs();
@@ -40,6 +41,32 @@ document.addEventListener('DOMContentLoaded', function () {
         cancelEdit.addEventListener('click', closeEditModal);
 
         cleanCacheBtn.addEventListener('click', cleanCache);
+
+        cookiesList.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-btn');
+            const deleteBtn = e.target.closest('.delete-btn');
+
+            if (editBtn) {
+                const index = parseInt(editBtn.dataset.index);
+                if (!isNaN(index) && filteredCookies[index]) {
+                    editCookies(filteredCookies[index]);
+                }
+            }
+
+            if (deleteBtn) {
+                const domain = deleteBtn.dataset.domain;
+                const name = deleteBtn.dataset.name;
+                if (domain && name) {
+                    deleteCookie(domain, name);
+                }
+            }
+        });
+
+        domainFilter.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                filterCookies();
+            }
+        });
     }
 
     function switchTab(tab) {
@@ -81,14 +108,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderCookies() {
         const filter = domainFilter.value.toLowerCase();
-        let filteredCookies = cookies;
+        filteredCookies = cookies.filter(cookie =>
+            !filter ||
+            cookie.domain.toLowerCase().includes(filter) ||
+            cookie.name.toLowerCase().includes(filter)
+        );
 
-        if (filter) {
-            filterCookies = cookies.filter(cookie =>
-                cookie.domain.toLowerCase().includes(filter) ||
-                cookie.name.toLowerCase().includes(filter)
-            );
-        }
+        // if (filter) {
+        //     filterCookies = cookies.filter(cookie =>
+        //         cookie.domain.toLowerCase().includes(filter) ||
+        //         cookie.name.toLowerCase().includes(filter)
+        //     );
+        // }
 
         cookiesList.innerHTML = '';
 
@@ -131,21 +162,6 @@ document.addEventListener('DOMContentLoaded', function () {
             cookiesList.appendChild(cookieItem);
         });
 
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const index = parseInt(this.getAttribute('data-index'));
-                editCookies(filterCookies[index]);
-            });
-        });
-
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const domain = this.getAttribute('data-domain');
-                const name = this.getAttribute('data-name');
-                deleteCookie(domain, name);
-            });
-        });
-
     }
 
     function editCookies(cookie) {
@@ -161,38 +177,61 @@ document.addEventListener('DOMContentLoaded', function () {
     function saveEditedCookie() {
         if (!currentEditingCookie) return;
 
-        const name = document.getElementById('editCookeName').value;
-        const value = document.getElementById('editCookeValue').value;
-        const domain = document.getElementById('editCookeDomain').value;
+        const name = document.getElementById('editCookieName').value;
+        const value = document.getElementById('editCookieValue').value;
+        let domain = document.getElementById('editCookieDomain').value;
 
-        const url = domain.startsWith('.')
-            ? `https://${domain.substring(1)}`
-            : `https://${domain}`;
+        // Remove leading dot if present (cookies API handles this automatically)
+        domain = domain.replace(/^\./, '');
+
+        const url = domain.startsWith('http') ? domain : `https://${domain}`;
 
         chrome.cookies.set({
             url,
             name,
             value,
-            domain
-        }, function () {
+            domain: currentEditingCookie.domain, // Use original domain
+            path: currentEditingCookie.path,
+            secure: currentEditingCookie.secure,
+            httpOnly: currentEditingCookie.httpOnly,
+            sameSite: currentEditingCookie.sameSite,
+            expirationDate: currentEditingCookie.expirationDate || (Date.now() / 1000) + 3600 // 1 hour if no expiration
+        }, (details) => {
+            if (chrome.runtime.lastError) {
+                console.error('Error saving cookie:', chrome.runtime.lastError);
+                showError('Failed to save cookie');
+                return;
+            }
             refreshCookies();
             closeEditModal();
+            showSuccess('Cookie updated successfully');
         });
     }
 
     function deleteCookie(domain, name) {
-        if (confirm(`Are you sure want to detete cookie "${name}" from "${domain}" ?`)) {
-            const url = domain.startsWith('.')
-                ? `http://${domain.substring(1)}`
-                : `https://${domain}`;
-
-            chrome.cookies.remove({
-                url,
-                name,
-            }, function () {
-                refreshCookies();
-            });
+        if (!confirm(`Are you sure you want to delete cookie "${name}" from "${domain}"?`)) {
+            return;
         }
+
+        // Clean up domain format
+        domain = domain.replace(/^\./, '').replace(/https?:\/\//, '');
+        const url = `https://${domain}`;
+
+        chrome.cookies.remove({
+            url,
+            name
+        }, (details) => {
+            if (chrome.runtime.lastError) {
+                console.error('Error deleting cookie:', chrome.runtime.lastError);
+                showError(`Failed to delete cookie: ${chrome.runtime.lastError.message}`);
+            } else {
+                // Remove from local state before refresh
+                cookies = cookies.filter(c => !(c.name === name && c.domain.includes(domain)));
+                filteredCookies = filteredCookies.filter(c => !(c.name === name && c.domain.includes(domain)));
+                renderCookies();
+                showSuccess('Cookie deleted successfully');
+            }
+        });
     }
 
     function closeEditModal() {
@@ -202,28 +241,49 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function cleanCache() {
         const timeRange = document.getElementById('cacheTimeRange').value;
-        const option = {
-            since: timeRange === '0' ? 0 :
-                (Date.now() - (parseInt(timeRange) * 60 * 60 * 1000))
+        const options = {
+            since: timeRange === '0' ? 0 : (Date.now() - (parseInt(timeRange) * 60 * 60 * 1000))
         };
 
         const dataTypes = {
-            cach: document.getElementById('cacheOptionCache').checked,
-            cookies: document.getElementById('cacheOptionCookie').checked,
-            localStorage: document.getElementById('cacheOptionLocalStorage').checked,
-            sessionStorage: document.getElementById('cacheOptionSessionStorage').checked
+            cache: document.getElementById('cacheOptionCache').checked,
+            cookies: document.getElementById('cacheOptionCookies').checked,
+            localStorage: document.getElementById('cacheOptionLocalStorage').checked
+            // Removed sessionStorage as it's not a valid type
         };
 
-        chrome.browsingData.remove(option, dataTypes, function () {
+        chrome.browsingData.remove(options, dataTypes, function () {
+            if (chrome.runtime.lastError) {
+                console.error('Error cleaning cache:', chrome.runtime.lastError);
+                showError('Failed to clean cache');
+                return;
+            }
+
             const originalText = cleanCacheBtn.innerHTML;
-            cleanCacheBtn.innerHTML = 'Cleaned!'
+            cleanCacheBtn.innerHTML = 'Cleaned!';
             cleanCacheBtn.style.backgroundColor = '#10b981';
 
             setTimeout(() => {
                 cleanCacheBtn.innerHTML = originalText;
-                cleanCacheBtn.style.backgroundColor = '#ef4444'
+                cleanCacheBtn.style.backgroundColor = '#ef4444';
             }, 2000);
-        })
+        });
+    }
+
+    function showError(message) {
+        const errorElement = document.createElement('div');
+        errorElement.className = 'error-message';
+        errorElement.textContent = message;
+        document.body.appendChild(errorElement);
+        setTimeout(() => errorElement.remove(), 3000);
+    }
+
+    function showSuccess(message) {
+        const successElement = document.createElement('div');
+        successElement.className = 'success-message';
+        successElement.textContent = message;
+        document.body.appendChild(successElement);
+        setTimeout(() => successElement.remove(), 3000);
     }
 
     function escapeHtml(unsafe) {

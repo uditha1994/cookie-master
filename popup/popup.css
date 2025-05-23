@@ -456,3 +456,29 @@ body {
 .cookies-list::-webkit-scrollbar-thumb:hover {
     background: #a0aec0;
 }
+
+.error-message {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #ffebee;
+    color: #b71c1c;
+    border: 1px solid #ef9a9a;
+    border-radius: 4px;
+    z-index: 1000;
+}
+
+.success-message {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+    border-radius: 4px;
+    z-index: 1000;
+}
