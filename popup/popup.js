@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function filterCookies() { 
+    function filterCookies() {
         renderCookies();
     }
 
@@ -131,16 +131,100 @@ document.addEventListener('DOMContentLoaded', function () {
             cookiesList.appendChild(cookieItem);
         });
 
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const index = parseInt(this.getAttribute('data-index'));
+                editCookies(filterCookies[index]);
+            });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const domain = this.getAttribute('data-domain');
+                const name = this.getAttribute('data-name');
+                deleteCookie(domain, name);
+            });
+        });
+
     }
 
-    function editCookies(cookie) { }
+    function editCookies(cookie) {
+        currentEditingCookie = cookie;
+        document.getElementById('editCookieName').value = cookie.name;
+        document.getElementById('editCookieValue').value = cookie.value;
+        document.getElementById('editCookieDomain').value = cookie.domain;
+        editModal.style.display = 'flex';
+
+        document.getElementById('saveCookie').onclick = saveEditedCookie;
+    }
+
+    function saveEditedCookie() {
+        if (!currentEditingCookie) return;
+
+        const name = document.getElementById('editCookeName').value;
+        const value = document.getElementById('editCookeValue').value;
+        const domain = document.getElementById('editCookeDomain').value;
+
+        const url = domain.startsWith('.')
+            ? `https://${domain.substring(1)}`
+            : `https://${domain}`;
+
+        chrome.cookies.set({
+            url,
+            name,
+            value,
+            domain
+        }, function () {
+            refreshCookies();
+            closeEditModal();
+        });
+    }
+
+    function deleteCookie(domain, name) {
+        if (confirm(`Are you sure want to detete cookie "${name}" from "${domain}" ?`)) {
+            const url = domain.startsWith('.')
+                ? `http://${domain.substring(1)}`
+                : `https://${domain}`;
+
+            chrome.cookies.remove({
+                url,
+                name,
+            }, function () {
+                refreshCookies();
+            });
+        }
+    }
 
     function closeEditModal() {
         editModal.style.display = 'none';
         currentEditingCookie = null;
     }
 
-    function cleanCache() { }
+    function cleanCache() {
+        const timeRange = document.getElementById('cacheTimeRange').value;
+        const option = {
+            since: timeRange === '0' ? 0 :
+                (Date.now() - (parseInt(timeRange) * 60 * 60 * 1000))
+        };
+
+        const dataTypes = {
+            cach: document.getElementById('cacheOptionCache').checked,
+            cookies: document.getElementById('cacheOptionCookie').checked,
+            localStorage: document.getElementById('cacheOptionLocalStorage').checked,
+            sessionStorage: document.getElementById('cacheOptionSessionStorage').checked
+        };
+
+        chrome.browsingData.remove(option, dataTypes, function () {
+            const originalText = cleanCacheBtn.innerHTML;
+            cleanCacheBtn.innerHTML = 'Cleaned!'
+            cleanCacheBtn.style.backgroundColor = '#10b981';
+
+            setTimeout(() => {
+                cleanCacheBtn.innerHTML = originalText;
+                cleanCacheBtn.style.backgroundColor = '#ef4444'
+            }, 2000);
+        })
+    }
 
     function escapeHtml(unsafe) {
         return unsafe
