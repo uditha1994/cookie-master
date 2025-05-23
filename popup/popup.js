@@ -67,6 +67,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 filterCookies();
             }
         });
+
+        document.getElementById('settingsBtn').addEventListener('click', openOptionsPage);
     }
 
     function switchTab(tab) {
@@ -294,4 +296,13 @@ document.addEventListener('DOMContentLoaded', function () {
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
     }
+
+    function openOptionsPage() {
+        if (chrome.runtime.openOptionsPage) {
+            chrome.runtime.openOptionsPage();
+        } else {
+            window.open(chrome.runtime.getURL('options/options.html'));
+        }
+    }
+
 });

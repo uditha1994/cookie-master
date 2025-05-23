@@ -18,6 +18,15 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
+    padding: 10px 0;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 15px;
+    margin-left: auto;
+    margin-right: 10px;
 }
 
 .title {
@@ -53,10 +62,27 @@ body {
 }
 
 .refresh-icon,
-.loading-spinner {
+.loading-spinner,
+.settings-icon {
     width: 20px;
     height: 20px;
     fill: white;
+}
+
+.settings-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.settings-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .loading-spinner {
